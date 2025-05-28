@@ -2,6 +2,7 @@ import itertools
 import threading
 import sys
 import time
+from contextlib import contextmanager  # Добавляем этот импорт
 
 class Spinner:
     def __init__(self):
@@ -25,3 +26,12 @@ class Spinner:
         self.thread.join()
         sys.stdout.write(' \b')
         sys.stdout.flush()
+
+@contextmanager
+def spinner_context(message=""):
+    spinner = Spinner()
+    spinner.start(message)
+    try:
+        yield
+    finally:
+        spinner.stop()

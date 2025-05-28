@@ -24,3 +24,4 @@ def initialize_characters(api_key, model, is_deepseek):
     spinner.stop()
     print("\n✓ Все персонажи инициализированы")
     return characters  # Важно: возвращаем созданный словарь
+

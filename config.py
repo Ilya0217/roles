@@ -6,10 +6,10 @@ CHATGPT_API_KEY = 'your_chatgpt_api_key'
 MODELS = {
     'deepseek': {
         'model': 'deepseek-chat',
-        'base_url': 'https://api.deepseek.com'
+        'base_url': 'https://api.deepseek.com/v1'
     },
     'chatgpt': {
         'model': 'gpt-3.5-turbo',
-        'base_url': 'https://api.openai.com'
+        'base_url': 'https://api.openai.com/v1'
     }
 }
