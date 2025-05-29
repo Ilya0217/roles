@@ -268,11 +268,21 @@ def _generate_private_message(speaker, listener, characters, model, api_key, is_
         is_deepseek
     )
 
+def _select_next_speaker(characters, current_speaker):
+    """Выбирает следующего случайного говорящего"""
+    available = [name for name in characters.keys() if name != current_speaker]
+    if not available:
+        return current_speaker
+    # Увеличиваем случайность выбора
+    weights = [1.0] * len(available)
+    return random.choices(available, weights=weights, k=1)[0]
+
 def _process_response(response, speaker, listener, characters, dialogue_history, interaction_graph, sentiment_analyzer, dialogue_type):
     """Обработка сгенерированного ответа"""
     if not response:
         return None
     
+    # Очищаем ответ от имени говорящего
     clean_response = response.replace(f"{characters[speaker]['name']}:", "").strip()
     clean_response = add_imperfections(clean_response)
     
@@ -281,6 +291,7 @@ def _process_response(response, speaker, listener, characters, dialogue_history,
     sentiment_label = sentiment_result['label']
     sentiment_score = float(sentiment_result['score'])
     
+    # Формируем строку диалога
     dialogue_line = f"{characters[speaker]['name']}: {clean_response} [Тип: {dialogue_type}, Настроение: {sentiment_label} ({sentiment_score:.2f})]"
     print(f"\n{dialogue_line}")
     dialogue_history.append(dialogue_line)
@@ -297,13 +308,9 @@ def _process_response(response, speaker, listener, characters, dialogue_history,
         comm_type=dialogue_type
     )
     
+    # Обновляем последний ответ персонажа
     characters[speaker]['last_response'] = clean_response
     return dialogue_line
-
-def _select_next_speaker(characters, current_speaker):
-    """Выбирает следующего случайного говорящего"""
-    available = [name for name in characters.keys() if name != current_speaker]
-    return random.choice(available) if available else current_speaker
 
 def _select_listener(speaker, characters, comm_manager):
     """Выбирает собеседника для частной беседы"""
@@ -361,9 +368,9 @@ def start_dialogue(characters, api_key, model, is_deepseek, environment):
     interaction_graph = InteractionGraph()
     dialogue_history = []
     dialogue_count = 0
-    comm_manager = CommunicationManager(environment)  # Initialize with environment
+    comm_manager = CommunicationManager(environment)
 
-    # Первая реплика
+    # Первая реплика - выбираем случайного персонажа
     current_speaker = random.choice(list(characters.keys()))
     first_line = f"{characters[current_speaker]['name']}: {characters[current_speaker]['last_response']}"
     print(f"\n{first_line}")
@@ -442,9 +449,10 @@ def start_dialogue(characters, api_key, model, is_deepseek, environment):
                     
                     if len(dialogue_history) % 5 == 0:
                         _perform_analysis(dialogue_history, interaction_graph, api_key, model, is_deepseek)
-                        
-                    # Передаем ход следующему участнику
-                    current_speaker = _select_next_speaker(characters, speaker)
+                    
+                    # Выбираем следующего говорящего
+                    next_speaker = _select_next_speaker(characters, speaker)
+                    current_speaker = next_speaker
                     current_tone = None
         else:
             print("Неверная команда. Нажмите 3 для продолжения, 1 для выбора тона или q для выхода")
