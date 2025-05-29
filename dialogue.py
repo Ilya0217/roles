@@ -353,14 +353,16 @@ def _perform_analysis(dialogue_history, interaction_graph, api_key, model, is_de
         )
         print(f"\nОтчёт наблюдателя:\n{observer_report}\n")
 
-def start_dialogue(characters, api_key, model, is_deepseek):
-    """Основная функция запуска диалога"""
-    comm_manager = CommunicationManager()
+def start_dialogue(characters, api_key, model, is_deepseek, environment):
+    """Запускает интерактивный диалог между персонажами"""
+    print("\nДиалог начался! (нажмите 3 для продолжения, 1 для выбора тона, q для выхода)")
+    
     sentiment_analyzer = SentimentAnalyzer()
     interaction_graph = InteractionGraph()
     dialogue_history = []
-    current_tone = None
-    
+    dialogue_count = 0
+    comm_manager = CommunicationManager(environment)  # Initialize with environment
+
     # Первая реплика
     current_speaker = random.choice(list(characters.keys()))
     first_line = f"{characters[current_speaker]['name']}: {characters[current_speaker]['last_response']}"

@@ -31,11 +31,26 @@ from typing import Optional
 from characters.manager import initialize_characters
 from dialogue import start_dialogue
 from config import DEEPSEEK_API_KEY, CHATGPT_API_KEY, MODELS
+from characters.prompts import ENVIRONMENT_PROMPTS
 from analysis.hypothesis import (
     test_leadership_hypothesis,
     test_conflict_hypothesis,
     test_group_formation
 )
+
+def select_environment():
+    """Выбор окружения для диалога"""
+    print("\nВыберите окружение:")
+    print("1. Школа (перемена)")
+    print("2. Эвакуация (экстренный случай)")
+    
+    while True:
+        choice = input("Ваш выбор (1-2): ").strip()
+        if choice == "1":
+            return "school"
+        elif choice == "2":
+            return "emergency"
+        print("Неверный выбор. Используйте 1 или 2.")
 
 def main():
     print("Выберите нейросеть:\n1 - DeepSeek\n2 - ChatGPT")
@@ -53,13 +68,23 @@ def main():
         print("Неверный выбор. Используйте 1 или 2.")
         return
 
-    characters = initialize_characters(api_key, model, is_deepseek)
+    # Выбор окружения
+    environment = select_environment()
+    env_config = ENVIRONMENT_PROMPTS[environment]
+    
+    print(f"\nВыбрано окружение: {env_config['name']}")
+    print(f"Настроение: {env_config['mood']}")
+    print("\nПравила окружения:")
+    for rule in env_config['rules']:
+        print(f"- {rule}")
+    
+    characters = initialize_characters(api_key, model, is_deepseek, environment)
     
     if characters:
         print("\nПерсонажи готовы к диалогу!")
         print("Инструкция:\n- Нажмите 3 для следующей реплики\n- Нажмите 1 для выбора тона ответа\n- Нажмите q для выхода\n")
 
-        dialogues = start_dialogue(characters, api_key, model, is_deepseek)
+        dialogues = start_dialogue(characters, api_key, model, is_deepseek, environment)
         
         # Анализ результатов
         print("\n" + "="*50)

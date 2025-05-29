@@ -1,12 +1,23 @@
 from typing import Dict, List, Tuple, Optional
 import time
 import random
+from characters.prompts import ENVIRONMENT_PROMPTS
 
 class CommunicationManager:
-    def __init__(self):
-        self.public_cooldown = 300  # 5 минут между публичными высказываниями
-        self.private_duration = 180  # 3 минуты на частную беседу
-        self.private_timeout = 600  # 10 минут таймаут между частными беседами
+    def __init__(self, environment: str):
+        self.environment = environment
+        env_config = ENVIRONMENT_PROMPTS[environment]
+        
+        # Настройка параметров в зависимости от окружения
+        if environment == "school":
+            self.public_cooldown = 300  # 5 минут между публичными высказываниями
+            self.private_duration = 180  # 3 минуты на частную беседу
+            self.private_timeout = 600  # 10 минут таймаут между частными беседами
+        else:  # emergency
+            self.public_cooldown = 60   # 1 минута между публичными высказываниями
+            self.private_duration = 30  # 30 секунд на частную беседу
+            self.private_timeout = 120  # 2 минуты таймаут между частными беседами
+            
         self.last_public: Dict[str, float] = {}
         self.private_sessions: Dict[Tuple[str, str], float] = {}
         self.private_timeouts: Dict[Tuple[str, str], float] = {}
